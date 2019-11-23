@@ -1,12 +1,10 @@
 import React from "react";
 import {
-  Image,
   ActivityIndicator,
   AsyncStorage,
   StatusBar,
   StyleSheet,
-  View,
-  ScrollView
+  View
 } from "react-native";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";

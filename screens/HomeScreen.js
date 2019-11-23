@@ -5,9 +5,17 @@ import {
   View,
   SectionList,
   SafeAreaView,
-  Text
+  Text,
+  Image
 } from "react-native";
-import { Badge, Input, Button, ListItem, List } from "react-native-elements";
+import {
+  Badge,
+  Input,
+  Button,
+  Card,
+  ListItem,
+  Icon
+} from "react-native-elements";
 import Constants from "expo-constants";
 import { bold } from "ansi-colors";
 
