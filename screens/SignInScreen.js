@@ -4,40 +4,49 @@ import {
   AsyncStorage,
   StyleSheet,
   View,
-  ScrollView
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  Text
 } from "react-native";
-import { Input, Button } from "react-native-elements";
-import Icon from "react-native-vector-icons/FontAwesome";
+import {} from "react-native-elements";
+import NfcManager, { NfcTech } from "react-native-nfc-manager";
 
 export default class SignInScreen extends React.Component {
+  componentDidMount() {
+    NfcManager.start();
+    NfcManager.setEventListener(NfcEvents.DiscoverTag, tag => {
+      console.warn("tag", tag);
+      NfcManager.setAlertMessageIOS("I got your tag!");
+      NfcManager.unregisterTagEvent().catch(() => 0);
+    });
+  }
+
   static navigationOptions = {
-    title: "Please Sign In"
+    title: "Login"
   };
 
   render() {
     return (
       <View style={styles.container}>
-        <ScrollView
-          style={styles.container}
-          contentContainerStyle={styles.contentContainer}
-        >
+        <ScrollView>
           <Image
-            source={require("../assets/images/logo.png")}
+            source={require("../assets/images/app-logo.png")}
             style={styles.logoImage}
           />
 
-          <Input
-            placeholder="Please enter ID"
-            leftIcon={
-              <Icon name="user" size={18} color="gray" style={styles.icon} />
-            }
-            inputContainerStyle={styles.loginInput}
+          <TextInput
+            placeholderTextColor="#003f5c"
+            placeholder="Patient ID"
+            style={styles.loginInput}
           />
-          <Button
-            title="Login"
+
+          <TouchableOpacity
             style={styles.loginButton}
             onPress={this._signInAsync}
-          />
+          >
+            <Text style={styles.loginText}>LOGIN</Text>
+          </TouchableOpacity>
         </ScrollView>
       </View>
     );
@@ -50,29 +59,39 @@ export default class SignInScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  icon: {
-    paddingRight: 10
-  },
   container: {
     flex: 1,
-    backgroundColor: "#fff"
-  },
-  contentContainer: {
+    backgroundColor: "#fff",
     alignItems: "center",
-    paddingTop: 30
+    justifyContent: "center"
   },
   logoImage: {
-    width: 100,
+    width: 300,
     height: 100,
     resizeMode: "contain",
-    paddingVertical: 100
+    marginVertical: 50
   },
   loginInput: {
-    alignSelf: "stretch",
-    borderColor: "gray",
-    borderWidth: 1
+    marginVertical: 10,
+    width: 300,
+    fontSize: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: "black"
   },
   loginButton: {
-    padding: 20
+    backgroundColor: "black",
+    marginVertical: 10,
+    width: 300,
+    alignItems: "center",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 25
+  },
+  loginText: {
+    fontSize: 16,
+    color: "white"
   }
 });
