@@ -24,16 +24,6 @@ import { bold } from "ansi-colors";
 
 import * as firebase from "firebase";
 
-// Initialize Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyBCzObI1ul0sB61TIi_XA83vpmsi30DGJQ",
-  authDomain: "pill-classification.firebaseapp.com",
-  databaseURL: "https://pill-classification.firebaseio.com",
-  storageBucket: "pill-classification.appspot.com"
-};
-
-firebase.initializeApp(firebaseConfig);
-
 var batterystatus = "None";
 var classamount = "None";
 var iserroroccured = "None";
@@ -57,7 +47,7 @@ function Item({ title }) {
   );
 }
 
-export default class HomeScreen extends React.Component {
+export default class AdminScreen extends React.Component {
   static navigationOptions = {
     title: "Smart Pill Box"
   };
@@ -104,6 +94,7 @@ export default class HomeScreen extends React.Component {
 
   tick() {
     this.setState({
+      selectedIndex: [0, 1, 2],
       date: new Date(),
       DATA: [
         {
@@ -148,13 +139,6 @@ export default class HomeScreen extends React.Component {
             )}
           />
         </SafeAreaView>
-
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={this._signOutAsync}
-        >
-          <Text style={styles.logoutText}>LOGOUT</Text>
-        </TouchableOpacity>
         <ButtonGroup
           onPress={this.updateIndex}
           selectedIndex={selectedIndex}
@@ -165,13 +149,20 @@ export default class HomeScreen extends React.Component {
     );
   }
 
+  updateIndex = async selectedIndex => {
+    if (selectedIndex == 2) {
+      await AsyncStorage.clear();
+      this.props.navigation.navigate("SignIn");
+    }
+  };
+
   _showMoreApp = () => {
     this.props.navigation.navigate("Other");
   };
 
   _signOutAsync = async () => {
     await AsyncStorage.clear();
-    this.props.navigation.navigate("Auth");
+    this.props.navigation.navigate("SignIn");
   };
 }
 

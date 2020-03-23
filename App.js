@@ -11,7 +11,12 @@ import { createStackNavigator } from "react-navigation-stack";
 import OneSignal from "react-native-onesignal";
 
 import SignInScreen from "./screens/SignInScreen";
-import HomeScreen from "./screens/HomeScreen";
+import SignUpScreen from "./screens/SignUpScreen";
+import AdminScreen from "./screens/AdminScreen";
+import SignInOperation from "./screens/SignInOperation";
+import SignUpOperation from "./screens/SignUpOperation";
+
+console.disableYellowBox = true;
 
 class AuthLoadingScreen extends React.Component {
   constructor() {
@@ -53,7 +58,7 @@ class AuthLoadingScreen extends React.Component {
 
     // This will switch to the App screen or Auth screen and this loading
     // screen will be unmounted and thrown away.
-    this.props.navigation.navigate(userToken ? "App" : "Auth");
+    this.props.navigation.navigate(userToken ? "AdminScreen" : "SignIn");
   };
 
   // Render any loading content that you like here
@@ -67,17 +72,31 @@ class AuthLoadingScreen extends React.Component {
   }
 }
 
-const AppStack = createStackNavigator({
-  Home: HomeScreen
+const AppAdmin = createStackNavigator({
+  AppAdmin: AdminScreen
 });
-const AuthStack = createStackNavigator({ SignIn: SignInScreen });
+const AppSignIn = createStackNavigator({
+  SignIn: SignInScreen
+});
+const AppSignUp = createStackNavigator({
+  SignIn: SignUpScreen
+});
+const OperationSignUp = createStackNavigator({
+  SignIn: SignUpOperation
+});
+const OperationSignIn = createStackNavigator({
+  SignIn: SignInOperation
+});
 
 export default createAppContainer(
   createSwitchNavigator(
     {
       AuthLoading: AuthLoadingScreen,
-      App: AppStack,
-      Auth: AuthStack
+      AdminScreen: AppAdmin,
+      SignIn: AppSignIn,
+      SignUp: AppSignUp,
+      SignUpOperation: OperationSignUp,
+      SignInOperation: OperationSignIn
     },
     {
       initialRouteName: "AuthLoading"

@@ -14,45 +14,34 @@ import {} from "react-native-elements";
 
 import * as firebase from "firebase";
 
-// Initialize Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyBCzObI1ul0sB61TIi_XA83vpmsi30DGJQ",
-  authDomain: "pill-classification.firebaseapp.com",
-  databaseURL: "https://pill-classification.firebaseio.com",
-  storageBucket: "pill-classification.appspot.com"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-export default class SignInScreen extends React.Component {
+export default class SignUpScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       email: "",
-      password: "",
-      message: "No Message"
+      password: ""
     };
   }
 
-  LogIn = (email, password) => {
+  SignUp = (email, password) => {
     try {
       firebase
         .auth()
-        .signInWithEmailAndPassword(email, password)
+        .createUserWithEmailAndPassword(email, password)
         .then(res => {
           console.log(res.user.email);
-          //Alert.alert("Sign In Alert", res.user.email);
+          //Alert.alert("Sign Up Alert", res.user.email);
           AsyncStorage.setItem("userToken", res.user.email);
           this.props.navigation.navigate("AdminScreen");
         });
     } catch (error) {
-      console.log(error.toString(error));
-      //Alert.alert("Sign In Alert", error.toString(error));
+      //console.log(error.toString(error));
+      Alert.alert("Sign In Alert", error.toString(error));
     }
   };
 
   static navigationOptions = {
-    title: "Sign In"
+    title: "Sign Up"
   };
 
   render() {
@@ -83,17 +72,11 @@ export default class SignInScreen extends React.Component {
 
           <TouchableOpacity
             style={styles.loginButton}
-            onPress={() => this.LogIn(this.state.email, this.state.password)}
+            onPress={() => this.SignUp(this.state.email, this.state.password)}
           >
-            <Text style={styles.loginText}>SIGN IN</Text>
+            <Text style={styles.loginText}>Sign Up</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={this._signUpAsync}
-          >
-            <Text style={styles.loginText}>SIGN UP</Text>
-          </TouchableOpacity>
+          <Text>{this.state.message}</Text>
         </ScrollView>
       </View>
     );
@@ -101,12 +84,7 @@ export default class SignInScreen extends React.Component {
 
   _signInAsync = async () => {
     AsyncStorage.setItem("userToken", this.state.userid);
-    this.props.navigation.navigate("AdminScreen");
-  };
-
-  _signUpAsync = async () => {
-    AsyncStorage.setItem("userToken", this.state.userid);
-    this.props.navigation.navigate("SignUp");
+    this.props.navigation.navigate("SignUpOperation");
   };
 }
 
