@@ -8,7 +8,9 @@ import {
   Text,
   Image,
   Alert,
-  TouchableOpacity
+  TouchableOpacity,
+  FlatList,
+  ScrollView,
 } from "react-native";
 import {
   Badge,
@@ -17,27 +19,61 @@ import {
   Card,
   ListItem,
   Icon,
-  ButtonGroup
+  ButtonGroup,
 } from "react-native-elements";
 import Constants from "expo-constants";
 import { bold } from "ansi-colors";
 
 import * as firebase from "firebase";
 
-var batterystatus = "None";
-var classamount = "None";
-var iserroroccured = "None";
-var powermode = "None";
-var useramount = "None";
+var powermode, classamount, iserroroccured, batterystatus, useramount;
 
-var SP = firebase.database().ref("StatusParameters");
-SP.on("value", function(snapshot) {
-  batterystatus = snapshot.val().BatteryStatus;
-  classamount = snapshot.val().ClassAmount;
-  iserroroccured = snapshot.val().IsErrorOccured;
-  powermode = snapshot.val().PowerMode;
-  useramount = snapshot.val().UserAmount;
-});
+firebase
+  .database()
+  .ref("StatusParameters")
+  .on("value", function (snapshot) {
+    batterystatus = snapshot.val().BatteryStatus;
+    classamount = snapshot.val().ClassAmount;
+    iserroroccured = snapshot.val().IsErrorOccured;
+    powermode = snapshot.val().PowerMode;
+    useramount = snapshot.val().UserAmount;
+  });
+
+var classes = [];
+
+firebase
+  .database()
+  .ref("Classes")
+  .orderByKey()
+  .once("value")
+  .then(function (snapshot) {
+    snapshot.forEach(function (childSnapshot) {
+      var key = childSnapshot.key;
+      var class_name = childSnapshot.val().class_name;
+      var sample_amount = childSnapshot.val().sample_amount;
+
+      classes.push(class_name + ": " + sample_amount);
+    });
+  });
+
+var users = [];
+
+firebase
+  .database()
+  .ref("Users")
+  .orderByKey()
+  .once("value")
+  .then(function (snapshot) {
+    snapshot.forEach(function (childSnapshot) {
+      var key = childSnapshot.key;
+      var user_name = childSnapshot.val().user_name;
+      var is_admin = childSnapshot.val().is_admin;
+
+      if (!is_admin) {
+        users.push(user_name);
+      }
+    });
+  });
 
 function Item({ title }) {
   return (
@@ -46,18 +82,18 @@ function Item({ title }) {
     </View>
   );
 }
-
 export default class AdminScreen extends React.Component {
   static navigationOptions = {
-    title: "Smart Pill Box"
+    title: "Smart Pill Box",
   };
 
   constructor(props) {
     super(props);
     this.state = {
+      selectedIndex: 2,
       date: new Date(),
       powermode: powermode,
-      DATA: [
+      statusParameter: [
         {
           title: "Device Informations",
           data: [
@@ -65,22 +101,22 @@ export default class AdminScreen extends React.Component {
             "Battery Status: " + batterystatus,
             "Total Class Amount: " + classamount,
             "Total User Amount: " + useramount,
-            "Error:" + iserroroccured
-          ]
+            "Error: " + iserroroccured,
+          ],
         },
+      ],
+      pillClasses: [
         {
           title: "Pill Classes",
-          data: ["Class A: 12", "Class B: 2"]
+          data: classes,
         },
+      ],
+      users: [
         {
-          title: "Patient",
-          data: ["Doğukan", "Saad", "Yasemin"]
+          title: "Users",
+          data: users,
         },
-        {
-          title: "Warnings",
-          data: ["Class B Pill is running out"]
-        }
-      ]
+      ],
     };
   }
 
@@ -94,9 +130,9 @@ export default class AdminScreen extends React.Component {
 
   tick() {
     this.setState({
-      selectedIndex: [0, 1, 2],
+      selectedIndex: 2,
       date: new Date(),
-      DATA: [
+      statusParameter: [
         {
           title: "Device Informations",
           data: [
@@ -104,36 +140,73 @@ export default class AdminScreen extends React.Component {
             "Battery Status: " + batterystatus,
             "Total Class Amount: " + classamount,
             "Total User Amount: " + useramount,
-            "Error: " + iserroroccured
-          ]
+            "Error: " + iserroroccured,
+          ],
         },
+      ],
+      pillClasses: [
         {
           title: "Pill Classes",
-          data: ["Class A: 12", "Class B: 2"]
+          data: classes,
         },
+      ],
+      users: [
         {
-          title: "Patient",
-          data: ["Doğukan", "Saad", "Yasemin"]
+          title: "Users",
+          data: users,
         },
-        {
-          title: "Warnings",
-          data: ["Class B Pill is running out"]
-        }
-      ]
+      ],
     });
   }
 
   render() {
-    const buttons = ["New Pill", "New Patient", "Logout"];
+    const buttons = ["New Pill", "Logout"];
     const { selectedIndex } = this.state;
 
     return (
       <View style={styles.container}>
         <SafeAreaView style={styles.contentContainer}>
           <SectionList
-            sections={this.state.DATA}
+            sections={this.state.statusParameter}
             keyExtractor={(item, index) => item + index}
             renderItem={({ item }) => <Item title={item} />}
+            renderSectionHeader={({ section: { title } }) => (
+              <Text style={styles.header}>{title}</Text>
+            )}
+          />
+          <SectionList
+            sections={this.state.pillClasses}
+            keyExtractor={(item, index) => item + index}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => {
+                  this.props.navigation.navigate("PillClass", {
+                    itemId: 86,
+                    otherParam: "anything you want here",
+                  });
+                }}
+              >
+                <Item title={item} />
+              </TouchableOpacity>
+            )}
+            renderSectionHeader={({ section: { title } }) => (
+              <Text style={styles.header}>{title}</Text>
+            )}
+          />
+          <SectionList
+            sections={this.state.users}
+            keyExtractor={(item, index) => item + index}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => {
+                  this.props.navigation.navigate("User", {
+                    user: item,
+                  });
+                }}
+              >
+                <Item title={item} />
+              </TouchableOpacity>
+            )}
             renderSectionHeader={({ section: { title } }) => (
               <Text style={styles.header}>{title}</Text>
             )}
@@ -143,58 +216,51 @@ export default class AdminScreen extends React.Component {
           onPress={this.updateIndex}
           selectedIndex={selectedIndex}
           buttons={buttons}
-          containerStyle={{ height: 50 }}
+          containerStyle={{ height: 50, minWidth: 150 }}
         />
       </View>
     );
   }
 
-  updateIndex = async selectedIndex => {
-    if (selectedIndex == 2) {
+  updateIndex = async (selectedIndex) => {
+    if (selectedIndex == 0) {
+      // Set Status Parameter for New Pill Image
+    }
+    if (selectedIndex == 1) {
       await AsyncStorage.clear();
       this.props.navigation.navigate("SignIn");
     }
-  };
-
-  _showMoreApp = () => {
-    this.props.navigation.navigate("Other");
-  };
-
-  _signOutAsync = async () => {
-    await AsyncStorage.clear();
-    this.props.navigation.navigate("SignIn");
   };
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center"
+    alignItems: "center",
   },
   contentContainer: {
     flex: 1,
-
     marginLeft: 16,
     alignSelf: "stretch",
-    marginBottom: 10
+    marginBottom: 10,
   },
   button: {
     width: 100,
-    marginVertical: 10
+    marginVertical: 10,
   },
   item: {
     padding: 8,
-    marginVertical: 2
+    marginVertical: 2,
   },
   header: {
     fontSize: 18,
     fontWeight: "bold",
     backgroundColor: "white",
     paddingTop: 16,
-    paddingBottom: 16
+    paddingBottom: 16,
   },
   title: {
-    fontSize: 16
+    fontSize: 16,
   },
   logoutButton: {
     backgroundColor: "black",
@@ -203,10 +269,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 15,
     paddingHorizontal: 20,
-    borderRadius: 25
+    borderRadius: 25,
   },
   logoutText: {
     fontSize: 16,
-    color: "white"
-  }
+    color: "white",
+  },
 });

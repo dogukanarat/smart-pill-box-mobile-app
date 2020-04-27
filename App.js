@@ -4,7 +4,7 @@ import {
   AsyncStorage,
   StatusBar,
   StyleSheet,
-  View
+  View,
 } from "react-native";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
@@ -13,8 +13,8 @@ import OneSignal from "react-native-onesignal";
 import SignInScreen from "./screens/SignInScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import AdminScreen from "./screens/AdminScreen";
-import SignInOperation from "./screens/SignInOperation";
-import SignUpOperation from "./screens/SignUpOperation";
+import UserScreen from "./screens/UserScreen";
+import PillClassScreen from "./screens/PillClassScreen";
 
 console.disableYellowBox = true;
 
@@ -23,7 +23,7 @@ class AuthLoadingScreen extends React.Component {
     super();
     this._bootstrapAsync();
     OneSignal.init("1c547fbb-907b-4429-9d2f-20184356b974", {
-      kOSSettingsKeyAutoPrompt: true
+      kOSSettingsKeyAutoPrompt: true,
     }); // set kOSSettingsKeyAutoPrompt to false prompting manually on iOS
 
     OneSignal.addEventListener("received", this.onReceived);
@@ -73,19 +73,19 @@ class AuthLoadingScreen extends React.Component {
 }
 
 const AppAdmin = createStackNavigator({
-  AppAdmin: AdminScreen
+  Screen: AdminScreen,
 });
 const AppSignIn = createStackNavigator({
-  SignIn: SignInScreen
+  Screen: SignInScreen,
 });
 const AppSignUp = createStackNavigator({
-  SignIn: SignUpScreen
+  Screen: SignUpScreen,
 });
-const OperationSignUp = createStackNavigator({
-  SignIn: SignUpOperation
+const AppUser = createStackNavigator({
+  Screen: UserScreen,
 });
-const OperationSignIn = createStackNavigator({
-  SignIn: SignInOperation
+const AppPillClass = createStackNavigator({
+  Screen: PillClassScreen,
 });
 
 export default createAppContainer(
@@ -95,11 +95,11 @@ export default createAppContainer(
       AdminScreen: AppAdmin,
       SignIn: AppSignIn,
       SignUp: AppSignUp,
-      SignUpOperation: OperationSignUp,
-      SignInOperation: OperationSignIn
+      User: AppUser,
+      PillClass: AppPillClass,
     },
     {
-      initialRouteName: "AuthLoading"
+      initialRouteName: "AuthLoading",
     }
   )
 );
@@ -107,21 +107,21 @@ export default createAppContainer(
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
   },
   contentContainer: {
     alignItems: "center",
-    paddingTop: 30
+    paddingTop: 30,
   },
   logoImage: {
     width: 100,
     height: 100,
-    resizeMode: "contain"
+    resizeMode: "contain",
   },
   loginInput: {
-    width: 20
+    width: 20,
   },
   loginButton: {
-    paddingTop: 20
-  }
+    paddingTop: 20,
+  },
 });

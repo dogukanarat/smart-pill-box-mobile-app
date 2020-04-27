@@ -8,7 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   Text,
-  Alert
+  Alert,
 } from "react-native";
 import {} from "react-native-elements";
 
@@ -19,7 +19,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyBCzObI1ul0sB61TIi_XA83vpmsi30DGJQ",
   authDomain: "pill-classification.firebaseapp.com",
   databaseURL: "https://pill-classification.firebaseio.com",
-  storageBucket: "pill-classification.appspot.com"
+  storageBucket: "pill-classification.appspot.com",
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -30,7 +30,7 @@ export default class SignInScreen extends React.Component {
     this.state = {
       email: "",
       password: "",
-      message: "No Message"
+      message: "No Message",
     };
   }
 
@@ -39,7 +39,7 @@ export default class SignInScreen extends React.Component {
       firebase
         .auth()
         .signInWithEmailAndPassword(email, password)
-        .then(res => {
+        .then((res) => {
           console.log(res.user.email);
           //Alert.alert("Sign In Alert", res.user.email);
           AsyncStorage.setItem("userToken", res.user.email);
@@ -52,7 +52,7 @@ export default class SignInScreen extends React.Component {
   };
 
   static navigationOptions = {
-    title: "Sign In"
+    title: "Sign In",
   };
 
   render() {
@@ -69,7 +69,7 @@ export default class SignInScreen extends React.Component {
             placeholder="Email"
             style={styles.loginInput}
             value={this.state.userid}
-            onChangeText={email => this.setState({ email })}
+            onChangeText={(email) => this.setState({ email })}
           />
 
           <TextInput
@@ -78,7 +78,7 @@ export default class SignInScreen extends React.Component {
             placeholder="Password"
             style={styles.loginInput}
             value={this.state.userid}
-            onChangeText={password => this.setState({ password })}
+            onChangeText={(password) => this.setState({ password })}
           />
 
           <TouchableOpacity
@@ -99,13 +99,7 @@ export default class SignInScreen extends React.Component {
     );
   }
 
-  _signInAsync = async () => {
-    AsyncStorage.setItem("userToken", this.state.userid);
-    this.props.navigation.navigate("AdminScreen");
-  };
-
   _signUpAsync = async () => {
-    AsyncStorage.setItem("userToken", this.state.userid);
     this.props.navigation.navigate("SignUp");
   };
 }
@@ -115,13 +109,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   logoImage: {
     width: 300,
     height: 100,
     resizeMode: "contain",
-    marginVertical: 50
+    marginVertical: 50,
   },
   loginInput: {
     marginVertical: 10,
@@ -131,7 +125,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 25,
     borderWidth: 1,
-    borderColor: "black"
+    borderColor: "black",
   },
   loginButton: {
     backgroundColor: "black",
@@ -140,10 +134,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 15,
     paddingHorizontal: 20,
-    borderRadius: 25
+    borderRadius: 25,
   },
   loginText: {
     fontSize: 16,
-    color: "white"
-  }
+    color: "white",
+  },
 });
