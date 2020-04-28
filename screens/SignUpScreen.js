@@ -85,22 +85,11 @@ export default class SignUpScreen extends React.Component {
             <Text style={styles.loginText}>SIGN UP</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={this._signInAsync}
-          >
-            <Text style={styles.loginText}>SIGN IN</Text>
-          </TouchableOpacity>
-
           <Text>{this.state.message}</Text>
         </ScrollView>
       </View>
     );
   }
-
-  _signInAsync = async () => {
-    this.props.navigation.navigate("SignIn");
-  };
 }
 
 const styles = StyleSheet.create({

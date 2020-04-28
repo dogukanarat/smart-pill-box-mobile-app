@@ -69,8 +69,10 @@ firebase
       var user_name = childSnapshot.val().user_name;
       var is_admin = childSnapshot.val().is_admin;
 
-      if (!is_admin) {
-        users.push(user_name);
+      if (is_admin) {
+        users.push(user_name + ": Admin");
+      } else {
+        users.push(user_name + ": Patient");
       }
     });
   });
@@ -82,7 +84,7 @@ function Item({ title }) {
     </View>
   );
 }
-export default class AdminScreen extends React.Component {
+export default class MainScreen extends React.Component {
   static navigationOptions = {
     title: "Smart Pill Box",
   };
@@ -90,7 +92,50 @@ export default class AdminScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedIndex: 2,
+      selectedIndex: -1,
+    };
+  }
+
+  render() {
+    const buttons = ["Refresh", "New Pill", "New Period", "Logout"];
+    const { selectedIndex } = this.state;
+    return (
+      <View style={styles.container}>
+        <ScrollView style={styles.contentContainer}>
+          <AdminScreen navigation={this.props.navigation} />
+          <ButtonGroup
+            onPress={this.updateIndex}
+            selectedIndex={selectedIndex}
+            buttons={buttons}
+            containerStyle={{ height: 50, minWidth: 150 }}
+          />
+        </ScrollView>
+      </View>
+    );
+  }
+
+  updateIndex = async (selectedIndex) => {
+    if (selectedIndex == 0) {
+      // Refresh
+      location.reload();
+    }
+    if (selectedIndex == 1) {
+      // Set Status Parameter for New Pill Image
+    }
+    if (selectedIndex == 2) {
+      // Set Status Parameter for New Pill Image
+    }
+    if (selectedIndex == 3) {
+      await AsyncStorage.clear();
+      this.props.navigation.navigate("Auth");
+    }
+  };
+}
+class AdminScreen extends React.Component {
+  constructor(props) {
+    super(props);
+    this.navigation = props.navigation;
+    this.state = {
       date: new Date(),
       powermode: powermode,
       statusParameter: [
@@ -130,7 +175,6 @@ export default class AdminScreen extends React.Component {
 
   tick() {
     this.setState({
-      selectedIndex: 2,
       date: new Date(),
       statusParameter: [
         {
@@ -160,12 +204,9 @@ export default class AdminScreen extends React.Component {
   }
 
   render() {
-    const buttons = ["New Pill", "Logout"];
-    const { selectedIndex } = this.state;
-
     return (
       <View style={styles.container}>
-        <SafeAreaView style={styles.contentContainer}>
+        <ScrollView style={styles.contentContainer}>
           <SectionList
             sections={this.state.statusParameter}
             keyExtractor={(item, index) => item + index}
@@ -180,9 +221,8 @@ export default class AdminScreen extends React.Component {
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => {
-                  this.props.navigation.navigate("PillClass", {
-                    itemId: 86,
-                    otherParam: "anything you want here",
+                  this.navigation.navigate("PillClass", {
+                    class: item.split(":")[0],
                   });
                 }}
               >
@@ -199,8 +239,8 @@ export default class AdminScreen extends React.Component {
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => {
-                  this.props.navigation.navigate("User", {
-                    user: item,
+                  this.navigation.navigate("User", {
+                    user: item.split(":")[0],
                   });
                 }}
               >
@@ -211,26 +251,25 @@ export default class AdminScreen extends React.Component {
               <Text style={styles.header}>{title}</Text>
             )}
           />
-        </SafeAreaView>
-        <ButtonGroup
-          onPress={this.updateIndex}
-          selectedIndex={selectedIndex}
-          buttons={buttons}
-          containerStyle={{ height: 50, minWidth: 150 }}
-        />
+        </ScrollView>
       </View>
     );
   }
+}
 
-  updateIndex = async (selectedIndex) => {
-    if (selectedIndex == 0) {
-      // Set Status Parameter for New Pill Image
-    }
-    if (selectedIndex == 1) {
-      await AsyncStorage.clear();
-      this.props.navigation.navigate("SignIn");
-    }
-  };
+class PatientScreen extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
+  render() {
+    return (
+      <View>
+        <Text>Patient Screen</Text>
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -241,6 +280,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     marginLeft: 16,
+    marginRight: 16,
     alignSelf: "stretch",
     marginBottom: 10,
   },
@@ -261,18 +301,5 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-  },
-  logoutButton: {
-    backgroundColor: "black",
-    marginVertical: 10,
-    width: 300,
-    alignItems: "center",
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-  },
-  logoutText: {
-    fontSize: 16,
-    color: "white",
   },
 });

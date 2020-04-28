@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  TextInput,
 } from "react-native";
 import {
   Badge,
@@ -26,20 +27,83 @@ import { bold } from "ansi-colors";
 
 import * as firebase from "firebase";
 
+var classInfo;
+
+firebase
+  .database()
+  .ref("Classes")
+  .once("value")
+  .then(function (snapshot) {
+    classInfo = snapshot.val();
+  });
+
 export default class PillClassScreen extends React.Component {
   static navigationOptions = {
     title: "Pill Class",
   };
+  constructor(props) {
+    super(props);
+
+    const { navigation } = this.props;
+    const className = JSON.stringify(navigation.getParam("class", null));
+
+    this.state = {
+      pillClassName: className,
+    };
+  }
+
+  componentDidMount() {
+    for (var key in classInfo) {
+      if (
+        JSON.stringify(classInfo[key].class_name) == this.state.pillClassName
+      ) {
+        this.setState({
+          class_key: key,
+          class_name: classInfo[key].class_name,
+          sample_amount: classInfo[key].sample_amount,
+        });
+        break; // If you want to break out of the loop once you've found a match
+      }
+    }
+  }
+
+  Save(class_name) {
+    var ref = "Classes/" + this.state.class_key + "/";
+    var user = firebase.database().ref(ref);
+    user.update({ class_name: class_name });
+  }
 
   render() {
-    const { navigation } = this.props;
     return (
       <View style={styles.container}>
         <ScrollView>
-          <Text>Pill Class Screen</Text>
-          <Text>
-            itemId: {JSON.stringify(navigation.getParam("itemId", "NO-ID"))}
-          </Text>
+          <Text>Class Key</Text>
+          <TextInput
+            style={styles.loginInput}
+            placeholder={this.state.class_key}
+            maxLength={20}
+            editable={false}
+          />
+          <Text>Class Name</Text>
+          <TextInput
+            style={styles.loginInput}
+            placeholder={String(this.state.class_name)}
+            maxLength={50}
+            onChangeText={(class_name) => this.setState({ class_name })}
+          />
+          <Text>Sample Amount</Text>
+          <TextInput
+            style={styles.loginInput}
+            placeholder={String(this.state.sample_amount)}
+            maxLength={20}
+            editable={false}
+          />
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => this.Save(this.state.class_name)}
+          >
+            <Text style={styles.loginText}>SAVE</Text>
+          </TouchableOpacity>
         </ScrollView>
       </View>
     );
@@ -52,12 +116,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+    paddingTop: 50,
   },
-  logoImage: {
-    width: 300,
-    height: 100,
-    resizeMode: "contain",
-    marginVertical: 50,
+  contentContainer: {
+    flex: 1,
+    marginLeft: 16,
+    marginRight: 16,
+    alignSelf: "stretch",
+    marginBottom: 10,
+  },
+  inputContainer: {
+    paddingTop: 15,
   },
   loginInput: {
     marginVertical: 10,

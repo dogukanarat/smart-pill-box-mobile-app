@@ -12,7 +12,7 @@ import OneSignal from "react-native-onesignal";
 
 import SignInScreen from "./screens/SignInScreen";
 import SignUpScreen from "./screens/SignUpScreen";
-import AdminScreen from "./screens/AdminScreen";
+import MainScreen from "./screens/MainScreen";
 import UserScreen from "./screens/UserScreen";
 import PillClassScreen from "./screens/PillClassScreen";
 
@@ -55,51 +55,36 @@ class AuthLoadingScreen extends React.Component {
   // Fetch the token from storage then navigate to our appropriate place
   _bootstrapAsync = async () => {
     const userToken = await AsyncStorage.getItem("userToken");
-
-    // This will switch to the App screen or Auth screen and this loading
-    // screen will be unmounted and thrown away.
-    this.props.navigation.navigate(userToken ? "AdminScreen" : "SignIn");
+    this.props.navigation.navigate(userToken ? "Main" : "Login");
   };
 
   // Render any loading content that you like here
   render() {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator />
-        <StatusBar barStyle="default" />
-      </View>
-    );
+    return <View style={styles.container}></View>;
   }
 }
 
-const AppAdmin = createStackNavigator({
-  Screen: AdminScreen,
+//**imports here...
+const AuthStack = createStackNavigator({
+  Login: SignInScreen,
+  Register: SignUpScreen,
 });
-const AppSignIn = createStackNavigator({
-  Screen: SignInScreen,
-});
-const AppSignUp = createStackNavigator({
-  Screen: SignUpScreen,
-});
-const AppUser = createStackNavigator({
-  Screen: UserScreen,
-});
-const AppPillClass = createStackNavigator({
-  Screen: PillClassScreen,
+
+const AppStack = createStackNavigator({
+  Main: MainScreen,
+  PillClass: PillClassScreen,
+  User: UserScreen,
 });
 
 export default createAppContainer(
   createSwitchNavigator(
     {
-      AuthLoading: AuthLoadingScreen,
-      AdminScreen: AppAdmin,
-      SignIn: AppSignIn,
-      SignUp: AppSignUp,
-      User: AppUser,
-      PillClass: AppPillClass,
+      Loading: AuthLoadingScreen,
+      App: AppStack,
+      Auth: AuthStack,
     },
     {
-      initialRouteName: "AuthLoading",
+      initialRouteName: "Loading",
     }
   )
 );

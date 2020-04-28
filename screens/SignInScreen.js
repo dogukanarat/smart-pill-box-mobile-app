@@ -40,10 +40,8 @@ export default class SignInScreen extends React.Component {
         .auth()
         .signInWithEmailAndPassword(email, password)
         .then((res) => {
-          console.log(res.user.email);
-          //Alert.alert("Sign In Alert", res.user.email);
           AsyncStorage.setItem("userToken", res.user.email);
-          this.props.navigation.navigate("AdminScreen");
+          this.props.navigation.navigate("Main");
         });
     } catch (error) {
       console.log(error.toString(error));
@@ -100,7 +98,7 @@ export default class SignInScreen extends React.Component {
   }
 
   _signUpAsync = async () => {
-    this.props.navigation.navigate("SignUp");
+    this.props.navigation.navigate("Register");
   };
 }
 
