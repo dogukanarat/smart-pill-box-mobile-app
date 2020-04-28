@@ -58,6 +58,11 @@ export default class UserScreen extends React.Component {
     var ref = "Users/" + this.state.user_key + "/";
     var user = firebase.database().ref(ref);
     user.update({ user_name: user_name, is_admin: Boolean(is_admin) });
+    var ref = "StatusParameters/";
+    var parameters = firebase.database().ref(ref);
+    parameters.update({
+      DatabaseUpdated: true,
+    });
   }
 
   render() {
@@ -95,10 +100,6 @@ export default class UserScreen extends React.Component {
       </View>
     );
   }
-
-  _signUpAsync = async () => {
-    this.props.navigation.navigate("SignUp");
-  };
 }
 
 const styles = StyleSheet.create({

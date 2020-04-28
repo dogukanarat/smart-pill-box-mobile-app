@@ -40,7 +40,22 @@ export default class SignInScreen extends React.Component {
         .auth()
         .signInWithEmailAndPassword(email, password)
         .then((res) => {
-          AsyncStorage.setItem("userToken", res.user.email);
+          AsyncStorage.setItem("userToken", res.user.uid);
+          firebase
+            .database()
+            .ref("Users")
+            .orderByKey()
+            .once("value")
+            .then((snapshot) => {
+              snapshot.forEach(function (childSnapshot) {
+                var is_admin = childSnapshot.val().is_admin;
+                var user_unique_id = childSnapshot.val().user_unique_id;
+
+                if (res.user.uid == user_unique_id) {
+                  AsyncStorage.setItem("userTokenIsAdmin", is_admin);
+                }
+              });
+            });
           this.props.navigation.navigate("Main");
         });
     } catch (error) {

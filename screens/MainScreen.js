@@ -77,6 +77,23 @@ firebase
     });
   });
 
+var periods = [];
+
+firebase
+  .database()
+  .ref("Periods")
+  .orderByKey()
+  .once("value")
+  .then(function (snapshot) {
+    snapshot.forEach(function (childSnapshot) {
+      var key = childSnapshot.key;
+      var user_name = childSnapshot.val().user_name;
+      var class_name = childSnapshot.val().class_name;
+
+      periods.push(key + ":" + class_name + " for " + user_name);
+    });
+  });
+
 function Item({ title }) {
   return (
     <View style={styles.item}>
@@ -93,15 +110,30 @@ export default class MainScreen extends React.Component {
     super(props);
     this.state = {
       selectedIndex: -1,
+      isLoading: true,
     };
+  }
+
+  componentDidMount() {
+    AsyncStorage.getItem("userTokenIsAdmin").then((token) => {
+      this.setState({
+        isLoading: false,
+        userIsAdmin: token,
+      });
+    });
   }
 
   render() {
     const buttons = ["Refresh", "New Pill", "New Period", "Logout"];
     const { selectedIndex } = this.state;
-    return (
-      <View style={styles.container}>
-        <ScrollView style={styles.contentContainer}>
+
+    console.log("Render:", this.state.userIsAdmin);
+
+    var willRender = null;
+
+    if (true) {
+      willRender = (
+        <View>
           <AdminScreen navigation={this.props.navigation} />
           <ButtonGroup
             onPress={this.updateIndex}
@@ -109,9 +141,27 @@ export default class MainScreen extends React.Component {
             buttons={buttons}
             containerStyle={{ height: 50, minWidth: 150 }}
           />
-        </ScrollView>
-      </View>
-    );
+        </View>
+      );
+    } else {
+      willRender = <PatientScreen navigation={this.props.navigation} />;
+    }
+
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.container}>
+          <ScrollView style={styles.contentContainer}>
+            <Text>Loading...</Text>
+          </ScrollView>
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.container}>
+          <ScrollView style={styles.contentContainer}>{willRender}</ScrollView>
+        </View>
+      );
+    }
   }
 
   updateIndex = async (selectedIndex) => {
@@ -120,10 +170,14 @@ export default class MainScreen extends React.Component {
       location.reload();
     }
     if (selectedIndex == 1) {
-      // Set Status Parameter for New Pill Image
+      var ref = "StatusParameters/";
+      var parameters = firebase.database().ref(ref);
+      parameters.update({
+        NewPillCmd: true,
+      });
     }
     if (selectedIndex == 2) {
-      // Set Status Parameter for New Pill Image
+      this.props.navigation.navigate("NewPeriod");
     }
     if (selectedIndex == 3) {
       await AsyncStorage.clear();
@@ -162,6 +216,12 @@ class AdminScreen extends React.Component {
           data: users,
         },
       ],
+      periods: [
+        {
+          title: "Periods",
+          data: periods,
+        },
+      ],
     };
   }
 
@@ -198,6 +258,12 @@ class AdminScreen extends React.Component {
         {
           title: "Users",
           data: users,
+        },
+      ],
+      periods: [
+        {
+          title: "Periods",
+          data: periods,
         },
       ],
     });
@@ -251,6 +317,25 @@ class AdminScreen extends React.Component {
               <Text style={styles.header}>{title}</Text>
             )}
           />
+
+          <SectionList
+            sections={this.state.periods}
+            keyExtractor={(item, index) => item + index}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => {
+                  this.navigation.navigate("Period", {
+                    period: item.split(":")[0],
+                  });
+                }}
+              >
+                <Item title={item.split(":")[1]} />
+              </TouchableOpacity>
+            )}
+            renderSectionHeader={({ section: { title } }) => (
+              <Text style={styles.header}>{title}</Text>
+            )}
+          />
         </ScrollView>
       </View>
     );
@@ -260,13 +345,28 @@ class AdminScreen extends React.Component {
 class PatientScreen extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      statusParameter: [
+        {
+          title: "Device Informations",
+          data: [
+            "Power Mode: " + powermode,
+            "Battery Status: " + batterystatus,
+            "Total Class Amount: " + classamount,
+            "Total User Amount: " + useramount,
+            "Error: " + iserroroccured,
+          ],
+        },
+      ],
+    };
   }
 
   render() {
     return (
-      <View>
-        <Text>Patient Screen</Text>
+      <View style={styles.container}>
+        <ScrollView style={styles.contentContainer}>
+          <Text>Patient Screen</Text>
+        </ScrollView>
       </View>
     );
   }

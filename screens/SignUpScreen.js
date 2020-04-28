@@ -37,10 +37,16 @@ export default class SignUpScreen extends React.Component {
               user_name: email.split("@")[0],
               user_unique_id: res.user.uid,
             });
-          console.log(res.user.email);
+
+          var ref = "StatusParameters/";
+          var parameters = firebase.database().ref(ref);
+          parameters.update({
+            DatabaseUpdated: true,
+          });
+
           //Alert.alert("Sign Up Alert", res.user.email);
           AsyncStorage.setItem("userToken", res.user.email);
-          this.props.navigation.navigate("AdminScreen");
+          this.props.navigation.navigate("Main");
         });
     } catch (error) {
       //console.log(error.toString(error));

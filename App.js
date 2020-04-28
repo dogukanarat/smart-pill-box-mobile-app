@@ -15,6 +15,8 @@ import SignUpScreen from "./screens/SignUpScreen";
 import MainScreen from "./screens/MainScreen";
 import UserScreen from "./screens/UserScreen";
 import PillClassScreen from "./screens/PillClassScreen";
+import NewPeriodScreen from "./screens/NewPeriodScreen";
+import PeriodScreen from "./screens/PeriodScreen";
 
 console.disableYellowBox = true;
 
@@ -74,6 +76,8 @@ const AppStack = createStackNavigator({
   Main: MainScreen,
   PillClass: PillClassScreen,
   User: UserScreen,
+  NewPeriod: NewPeriodScreen,
+  Period: PeriodScreen,
 });
 
 export default createAppContainer(

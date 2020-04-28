@@ -71,6 +71,12 @@ export default class PillClassScreen extends React.Component {
     var ref = "Classes/" + this.state.class_key + "/";
     var user = firebase.database().ref(ref);
     user.update({ class_name: class_name });
+
+    var ref = "StatusParameters/";
+    var parameters = firebase.database().ref(ref);
+    parameters.update({
+      DatabaseUpdated: true,
+    });
   }
 
   render() {
