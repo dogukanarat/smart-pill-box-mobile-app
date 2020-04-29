@@ -12,7 +12,8 @@ import OneSignal from "react-native-onesignal";
 
 import SignInScreen from "./screens/SignInScreen";
 import SignUpScreen from "./screens/SignUpScreen";
-import MainScreen from "./screens/MainScreen";
+import AdminScreen from "./screens/AdminScreen";
+import PatientScreen from "./screens/PatientScreen";
 import UserScreen from "./screens/UserScreen";
 import PillClassScreen from "./screens/PillClassScreen";
 import NewPeriodScreen from "./screens/NewPeriodScreen";
@@ -57,7 +58,10 @@ class AuthLoadingScreen extends React.Component {
   // Fetch the token from storage then navigate to our appropriate place
   _bootstrapAsync = async () => {
     const userToken = await AsyncStorage.getItem("userToken");
-    this.props.navigation.navigate(userToken ? "Main" : "Login");
+    const userTokenIsAdmin = await AsyncStorage.getItem("userTokenIsAdmin");
+    this.props.navigation.navigate(
+      userTokenIsAdmin ? (userTokenIsAdmin ? "Admin" : "Patient") : "Login"
+    );
   };
 
   // Render any loading content that you like here
@@ -73,7 +77,8 @@ const AuthStack = createStackNavigator({
 });
 
 const AppStack = createStackNavigator({
-  Main: MainScreen,
+  Patient: PatientScreen,
+  Admin: AdminScreen,
   PillClass: PillClassScreen,
   User: UserScreen,
   NewPeriod: NewPeriodScreen,

@@ -28,71 +28,11 @@ import * as firebase from "firebase";
 
 var powermode, classamount, iserroroccured, batterystatus, useramount;
 
-firebase
-  .database()
-  .ref("StatusParameters")
-  .on("value", function (snapshot) {
-    batterystatus = snapshot.val().BatteryStatus;
-    classamount = snapshot.val().ClassAmount;
-    iserroroccured = snapshot.val().IsErrorOccured;
-    powermode = snapshot.val().PowerMode;
-    useramount = snapshot.val().UserAmount;
-  });
-
 var classes = [];
-
-firebase
-  .database()
-  .ref("Classes")
-  .orderByKey()
-  .once("value")
-  .then(function (snapshot) {
-    snapshot.forEach(function (childSnapshot) {
-      var key = childSnapshot.key;
-      var class_name = childSnapshot.val().class_name;
-      var sample_amount = childSnapshot.val().sample_amount;
-
-      classes.push(class_name + ": " + sample_amount);
-    });
-  });
 
 var users = [];
 
-firebase
-  .database()
-  .ref("Users")
-  .orderByKey()
-  .once("value")
-  .then(function (snapshot) {
-    snapshot.forEach(function (childSnapshot) {
-      var key = childSnapshot.key;
-      var user_name = childSnapshot.val().user_name;
-      var is_admin = childSnapshot.val().is_admin;
-
-      if (is_admin) {
-        users.push(user_name + ": Admin");
-      } else {
-        users.push(user_name + ": Patient");
-      }
-    });
-  });
-
 var periods = [];
-
-firebase
-  .database()
-  .ref("Periods")
-  .orderByKey()
-  .once("value")
-  .then(function (snapshot) {
-    snapshot.forEach(function (childSnapshot) {
-      var key = childSnapshot.key;
-      var user_name = childSnapshot.val().user_name;
-      var class_name = childSnapshot.val().class_name;
-
-      periods.push(key + ":" + class_name + " for " + user_name);
-    });
-  });
 
 function Item({ title }) {
   return (
@@ -101,114 +41,15 @@ function Item({ title }) {
     </View>
   );
 }
-export default class MainScreen extends React.Component {
+export default class AdminScreen extends React.Component {
   static navigationOptions = {
-    title: "Smart Pill Box",
+    title: "Smart Pill Box: Admin Screen",
   };
-
   constructor(props) {
     super(props);
+
     this.state = {
       selectedIndex: -1,
-      isLoading: true,
-    };
-    //this.clearToken();
-    this.getToken();
-  }
-
-  clearToken = async () => {
-    await AsyncStorage.clear();
-    this.props.navigation.navigate("Auth");
-  };
-
-  getToken = async () => {
-    try {
-      const is_admin = await AsyncStorage.getItem("userTokenIsAdmin");
-
-      if (is_admin !== null) {
-        this.setState({ isLoading: false, userIsAdmin: is_admin });
-        console.log("getToken called: ", is_admin, this.state.userIsAdmin);
-      }
-    } catch (err) {
-      // Print Error
-    }
-  };
-
-  render() {
-    const buttons = ["Refresh", "New Pill", "New Period", "Logout"];
-    const { selectedIndex } = this.state;
-
-    var willRender = null;
-
-    console.log("Rendered: ", this.state.userIsAdmin);
-
-    if (this.state.userIsAdmin) {
-      willRender = (
-        <View>
-          <AdminScreen navigation={this.props.navigation} />
-          <ButtonGroup
-            onPress={this.updateIndex}
-            selectedIndex={selectedIndex}
-            buttons={buttons}
-            containerStyle={{ height: 50, minWidth: 150 }}
-          />
-        </View>
-      );
-    } else {
-      willRender = <PatientScreen navigation={this.props.navigation} />;
-    }
-
-    if (false) {
-      return (
-        <View style={styles.container}>
-          <ScrollView style={styles.contentContainer}>
-            <Text>Loading...</Text>
-          </ScrollView>
-        </View>
-      );
-    } else {
-      return (
-        <View style={styles.container}>
-          <ScrollView style={styles.contentContainer}>{willRender}</ScrollView>
-          <Text
-            onPress={() => {
-              this.setState({});
-              console.log("Refreshed");
-            }}
-          >
-            Refresh
-          </Text>
-        </View>
-      );
-    }
-  }
-
-  updateIndex = async (selectedIndex) => {
-    if (selectedIndex == 0) {
-      // Refresh
-      location.reload();
-    }
-    if (selectedIndex == 1) {
-      var ref = "StatusParameters/";
-      var parameters = firebase.database().ref(ref);
-      parameters.update({
-        NewPillCmd: true,
-      });
-    }
-    if (selectedIndex == 2) {
-      this.props.navigation.navigate("NewPeriod");
-    }
-    if (selectedIndex == 3) {
-      await AsyncStorage.clear();
-      this.props.navigation.navigate("Auth");
-    }
-  };
-}
-class AdminScreen extends React.Component {
-  constructor(props) {
-    super(props);
-    this.navigation = props.navigation;
-    this.state = {
       date: new Date(),
       powermode: powermode,
       statusParameter: [
@@ -286,9 +127,83 @@ class AdminScreen extends React.Component {
         },
       ],
     });
+
+    powermode = null;
+    classamount = null;
+    iserroroccured = null;
+    batterystatus = null;
+    useramount = null;
+    classes = [];
+    users = [];
+    periods = [];
+
+    firebase
+      .database()
+      .ref("StatusParameters")
+      .on("value", function (snapshot) {
+        batterystatus = snapshot.val().BatteryStatus;
+        classamount = snapshot.val().ClassAmount;
+        iserroroccured = Boolean(snapshot.val().IsErrorOccured)
+          ? "There is an error"
+          : "No Error";
+        powermode = snapshot.val().PowerMode;
+        useramount = snapshot.val().UserAmount;
+      });
+
+    firebase
+      .database()
+      .ref("Classes")
+      .orderByKey()
+      .once("value")
+      .then(function (snapshot) {
+        snapshot.forEach(function (childSnapshot) {
+          var key = childSnapshot.key;
+          var class_name = childSnapshot.val().class_name;
+          var sample_amount = childSnapshot.val().sample_amount;
+
+          classes.push(class_name + ": " + sample_amount);
+        });
+      });
+
+    firebase
+      .database()
+      .ref("Users")
+      .orderByKey()
+      .once("value")
+      .then(function (snapshot) {
+        snapshot.forEach(function (childSnapshot) {
+          var key = childSnapshot.key;
+          var user_name = childSnapshot.val().user_name;
+          var is_admin = childSnapshot.val().is_admin;
+
+          if (is_admin) {
+            users.push(user_name + ": Admin");
+          } else {
+            users.push(user_name + ": Patient");
+          }
+        });
+      });
+
+    firebase
+      .database()
+      .ref("Periods")
+      .orderByKey()
+      .once("value")
+      .then(function (snapshot) {
+        snapshot.forEach(function (childSnapshot) {
+          var key = childSnapshot.key;
+          var user_name = childSnapshot.val().user_name;
+          var class_name = childSnapshot.val().class_name;
+
+          periods.push(key + ":" + class_name + " for " + user_name);
+        });
+      });
   }
 
   render() {
+    const buttons = ["New Pill", "New Period", "Logout"];
+    const { selectedIndex } = this.state;
+
     return (
       <View style={styles.container}>
         <ScrollView style={styles.contentContainer}>
@@ -306,7 +221,7 @@ class AdminScreen extends React.Component {
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => {
-                  this.navigation.navigate("PillClass", {
+                  this.props.navigation.navigate("PillClass", {
                     class: item.split(":")[0],
                   });
                 }}
@@ -324,7 +239,7 @@ class AdminScreen extends React.Component {
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => {
-                  this.navigation.navigate("User", {
+                  this.props.navigation.navigate("User", {
                     user: item.split(":")[0],
                   });
                 }}
@@ -343,7 +258,7 @@ class AdminScreen extends React.Component {
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => {
-                  this.navigation.navigate("Period", {
+                  this.props.navigation.navigate("Period", {
                     period: item.split(":")[0],
                   });
                 }}
@@ -355,8 +270,62 @@ class AdminScreen extends React.Component {
               <Text style={styles.header}>{title}</Text>
             )}
           />
+          <ButtonGroup
+            onPress={this.updateIndex}
+            selectedIndex={selectedIndex}
+            buttons={buttons}
+            containerStyle={{ height: 50, minWidth: 150 }}
+          />
         </ScrollView>
       </View>
     );
   }
+  updateIndex = async (selectedIndex) => {
+    if (selectedIndex == 0) {
+      var ref = "StatusParameters/";
+      var parameters = firebase.database().ref(ref);
+      parameters.update({
+        NewPillCmd: true,
+      });
+    }
+    if (selectedIndex == 1) {
+      this.props.navigation.navigate("NewPeriod");
+    }
+    if (selectedIndex == 2) {
+      await AsyncStorage.clear();
+      this.props.navigation.navigate("Auth");
+    }
+  };
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+  },
+  contentContainer: {
+    flex: 1,
+    marginLeft: 16,
+    marginRight: 16,
+    alignSelf: "stretch",
+    marginBottom: 10,
+  },
+  button: {
+    width: 100,
+    marginVertical: 10,
+  },
+  item: {
+    padding: 8,
+    marginVertical: 2,
+  },
+  header: {
+    fontSize: 18,
+    fontWeight: "bold",
+    backgroundColor: "white",
+    paddingTop: 16,
+    paddingBottom: 16,
+  },
+  title: {
+    fontSize: 16,
+  },
+});
