@@ -48,7 +48,7 @@ export default class NewPeriodScreen extends React.Component {
 
   componentDidMount() {}
 
-  Set(user_name, class_name, amount, frequency) {
+  Set(user_name, class_name, amount, frequency, last_take) {
     var ifExistsClassName, ifExistUsername;
 
     for (var key in users) {
@@ -71,20 +71,6 @@ export default class NewPeriodScreen extends React.Component {
     });
 
     if (ifExistUsername && ifExistsClassName) {
-      var date = new Date("1976-04-19T12:59-0500");
-      var dateString =
-        m.getUTCDate() +
-        "/" +
-        (m.getUTCMonth() + 1) +
-        "/" +
-        m.getUTCFullYear() +
-        " " +
-        m.getUTCHours() +
-        ":" +
-        m.getUTCMinutes() +
-        ":" +
-        m.getUTCSeconds();
-
       var ref = "Periods/";
       var set = firebase.database().ref(ref).push();
 
@@ -93,7 +79,7 @@ export default class NewPeriodScreen extends React.Component {
         user_name: user_name,
         sample_amount: parseInt(amount),
         frequency: parseInt(frequency),
-        last_take: dateString,
+        last_take: last_take,
       });
       var ref = "StatusParameters/";
       var parameters = firebase.database().ref(ref);
@@ -145,6 +131,13 @@ export default class NewPeriodScreen extends React.Component {
             onChangeText={(frequency) => this.setState({ frequency })}
           />
 
+          <Text>Last Take(DD/MM/YYYY HH:MM:SS)</Text>
+          <TextInput
+            style={styles.loginInput}
+            maxLength={50}
+            onChangeText={(last_take) => this.setState({ last_take })}
+          />
+
           <TouchableOpacity
             style={styles.loginButton}
             onPress={() =>
@@ -152,7 +145,8 @@ export default class NewPeriodScreen extends React.Component {
                 this.state.user_name,
                 this.state.class_name,
                 this.state.amount,
-                this.state.frequency
+                this.state.frequency,
+                this.state.last_take
               )
             }
           >

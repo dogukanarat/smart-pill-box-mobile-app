@@ -8,6 +8,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@react-native-community/masked-view": "^0.1.10",
     "expo": "^35.0.0",
     "firebase": "^7.14.2",
     "moment": "^2.24.0",
