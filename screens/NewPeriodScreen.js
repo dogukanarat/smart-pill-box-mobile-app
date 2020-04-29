@@ -71,13 +71,29 @@ export default class NewPeriodScreen extends React.Component {
     });
 
     if (ifExistUsername && ifExistsClassName) {
+      var date = new Date("1976-04-19T12:59-0500");
+      var dateString =
+        m.getUTCDate() +
+        "/" +
+        (m.getUTCMonth() + 1) +
+        "/" +
+        m.getUTCFullYear() +
+        " " +
+        m.getUTCHours() +
+        ":" +
+        m.getUTCMinutes() +
+        ":" +
+        m.getUTCSeconds();
+
       var ref = "Periods/";
       var set = firebase.database().ref(ref).push();
+
       set.set({
         class_name: class_name,
         user_name: user_name,
         sample_amount: parseInt(amount),
         frequency: parseInt(frequency),
+        last_take: dateString,
       });
       var ref = "StatusParameters/";
       var parameters = firebase.database().ref(ref);
