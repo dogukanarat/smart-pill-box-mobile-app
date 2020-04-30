@@ -27,6 +27,7 @@ import { bold } from "ansi-colors";
 import * as firebase from "firebase";
 
 var periods = [];
+var message;
 
 function Item({ title }) {
   return (
@@ -73,6 +74,7 @@ export default class PatientScreen extends React.Component {
           data: periods,
         },
       ],
+      message: message,
     });
 
     periods = [];
@@ -82,14 +84,15 @@ export default class PatientScreen extends React.Component {
       .ref("Periods")
       .orderByKey()
       .once("value")
-      .then((snapshot) => {
-        snapshot.forEach(async (childSnapshot) => {
+      .then(async (snapshot) => {
+        var token = await AsyncStorage.getItem("userTokenUserName");
+        var count_message = 0;
+        snapshot.forEach((childSnapshot) => {
           var key = childSnapshot.key;
           var user_name = childSnapshot.val().user_name;
           var class_name = childSnapshot.val().class_name;
           var frequency = childSnapshot.val().frequency;
-
-          var token = await AsyncStorage.getItem("userTokenUserName");
+          var user_message = childSnapshot.val().message;
 
           if (token == user_name) {
             periods.push(
@@ -102,8 +105,13 @@ export default class PatientScreen extends React.Component {
                 frequency +
                 " hours"
             );
+            if (user_message) {
+              count_message += 1;
+            }
           }
         });
+
+        message = count_message == 0 ? false : true;
       });
   }
 
@@ -111,9 +119,25 @@ export default class PatientScreen extends React.Component {
     const buttons = ["Logout"];
     const { selectedIndex } = this.state;
 
+    var print_message;
+
+    if (this.state.message) {
+      print_message = (
+        <Badge
+          status="warning"
+          value="Go to machine to take the pill!"
+          badgeStyle={styles.badge}
+          textStyle={styles.badgeText}
+        />
+      );
+    } else {
+      print_message = null;
+    }
+
     return (
       <View style={styles.container}>
         <ScrollView style={styles.contentContainer}>
+          {print_message}
           <SectionList
             sections={this.state.periods}
             keyExtractor={(item, index) => item + index}
@@ -155,6 +179,14 @@ const styles = StyleSheet.create({
     marginRight: 16,
     alignSelf: "stretch",
     marginBottom: 10,
+  },
+  badge: {
+    margin: 20,
+    padding: 15,
+  },
+  badgeText: {
+    fontSize: 18,
+    fontStyle: "bold",
   },
   button: {
     width: 100,
